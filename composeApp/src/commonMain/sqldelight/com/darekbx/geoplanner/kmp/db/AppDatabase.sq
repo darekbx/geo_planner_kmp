@@ -1,0 +1,101 @@
+-- =========================
+-- TRACK IDS
+-- =========================
+
+CREATE TABLE track_ids (
+    id INTEGER NOT NULL
+);
+
+selectAllTrackIds:
+SELECT id FROM track_ids;
+
+insertTrackIds:
+INSERT INTO track_ids(id)
+VALUES (?);
+
+deleteAllTrackIds:
+DELETE FROM track_ids;
+
+deleteTrackIdsById:
+DELETE FROM track_ids
+WHERE id = ?;
+
+-- =========================
+-- TRACK
+-- =========================
+
+CREATE TABLE track (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    local_id INTEGER NOT NULL,
+    label TEXT,
+    start_timestamp INTEGER NOT NULL,
+    end_timestamp INTEGER,
+    distance REAL
+);
+
+selectAllTracks:
+SELECT * FROM track;
+
+insertTrack:
+INSERT INTO track(local_id, label, start_timestamp, end_timestamp, distance)
+VALUES (?, ?, ?, ?, ?);
+
+deleteAllTracks:
+DELETE FROM track;
+
+deleteTrackById:
+DELETE FROM track
+WHERE id = ?;
+
+
+-- =========================
+-- POINT
+-- =========================
+
+CREATE TABLE point (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    track_id INTEGER NOT NULL,
+    timestamp INTEGER NOT NULL,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
+    speed REAL NOT NULL,
+    altitude REAL NOT NULL
+);
+
+selectAllPoints:
+SELECT * FROM point;
+
+insertPoint:
+INSERT INTO point(track_id, timestamp, latitude, longitude, speed, altitude)
+VALUES (?, ?, ?, ?, ?, ?);
+
+deleteAllPoints:
+DELETE FROM point;
+
+deletePointById:
+DELETE FROM point
+WHERE id = ?;
+
+
+-- =========================
+-- PLACE
+-- =========================
+
+CREATE TABLE place (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    label TEXT NOT NULL,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
+    timestamp INTEGER NOT NULL
+);
+
+selectAllPlaces:
+SELECT * FROM place;
+
+insertPlace:
+INSERT INTO place(label, latitude, longitude, timestamp)
+VALUES (?, ?, ?, ?);
+
+deleteAllPlaces:
+DELETE FROM place;
+
