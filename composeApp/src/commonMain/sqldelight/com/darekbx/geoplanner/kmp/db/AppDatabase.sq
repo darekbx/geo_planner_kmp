@@ -1,4 +1,12 @@
 -- =========================
+-- CUSTOM   queries
+-- =========================
+
+selectTrackWithPoints:
+SELECT t.local_id, p.id, p.latitude, p.longitude FROM track AS t
+JOIN point AS p ON p.track_id = t.local_id;
+
+-- =========================
 -- TRACK IDS
 -- =========================
 
@@ -8,17 +16,6 @@ CREATE TABLE track_ids (
 
 selectAllTrackIds:
 SELECT id FROM track_ids;
-
-insertTrackIds:
-INSERT INTO track_ids(id)
-VALUES (?);
-
-deleteAllTrackIds:
-DELETE FROM track_ids;
-
-deleteTrackIdsById:
-DELETE FROM track_ids
-WHERE id = ?;
 
 -- =========================
 -- TRACK
@@ -36,17 +33,12 @@ CREATE TABLE track (
 selectAllTracks:
 SELECT * FROM track;
 
+selectTrack:
+SELECT * FROM track WHERE local_id = ?;
+
 insertTrack:
 INSERT INTO track(local_id, label, start_timestamp, end_timestamp, distance)
 VALUES (?, ?, ?, ?, ?);
-
-deleteAllTracks:
-DELETE FROM track;
-
-deleteTrackById:
-DELETE FROM track
-WHERE id = ?;
-
 
 -- =========================
 -- POINT
@@ -62,20 +54,12 @@ CREATE TABLE point (
     altitude REAL NOT NULL
 );
 
-selectAllPoints:
-SELECT * FROM point;
-
 insertPoint:
 INSERT INTO point(track_id, timestamp, latitude, longitude, speed, altitude)
 VALUES (?, ?, ?, ?, ?, ?);
 
-deleteAllPoints:
-DELETE FROM point;
-
-deletePointById:
-DELETE FROM point
-WHERE id = ?;
-
+selectPoints:
+SELECT * FROM point WHERE track_id = ?;
 
 -- =========================
 -- PLACE
@@ -98,4 +82,3 @@ VALUES (?, ?, ?, ?);
 
 deleteAllPlaces:
 DELETE FROM place;
-

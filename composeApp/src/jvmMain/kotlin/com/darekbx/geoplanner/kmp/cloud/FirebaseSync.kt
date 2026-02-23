@@ -79,7 +79,7 @@ class FirebaseSync(
         log("Saving tracks to database...")
         tracks
             .forEachIndexed { index, track ->
-                val trackId = appDatabaseQueries
+                appDatabaseQueries
                     .insertTrack(
                         track.localId.toLong(),
                         track.label,
@@ -88,10 +88,10 @@ class FirebaseSync(
                         track.distance
                     )
                     .await()
-                track.points.forEach { point ->
+                    track.points.forEach { point ->
                     appDatabaseQueries
                         .insertPoint(
-                            trackId,
+                            track.localId.toLong(),
                             point.timestamp,
                             point.latitude,
                             point.longitude,
