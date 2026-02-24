@@ -49,7 +49,7 @@ import org.koin.compose.koinInject
 
 
 @Composable
-fun Screen.Tracks(onTrackClick: (Long) -> Unit) {
+fun Screen.Tracks(onTrackClick: (Long) -> Unit, onCleanSelection: () -> Unit) {
     val appDatabaseQueries: AppDatabaseQueries = koinInject()
     val firebaseSync: FirebaseSync = koinInject()
     val tracksViewModel = rememberScreenModel { TracksViewModel(appDatabaseQueries, firebaseSync) }
@@ -65,7 +65,7 @@ fun Screen.Tracks(onTrackClick: (Long) -> Unit) {
             TracksUiState.InProgress -> InProgress()
             TracksUiState.Synchronizing -> SynchronizeStatus(tracksViewModel)
             is TracksUiState.Error -> ErrorView(state.e)
-            is TracksUiState.TracksLoaded -> TracksList(state.tracks, onTrackClick) {
+            is TracksUiState.TracksLoaded -> TracksList(state.tracks, onTrackClick, onCleanSelection) {
                 tracksViewModel.synchronize()
             }
         }
@@ -112,6 +112,7 @@ private fun BoxScope.InProgress() {
 fun TracksList(
     tracks: List<Track>,
     onTrackClick: (Long) -> Unit,
+    onCleanSelection: () -> Unit,
     onSynchronize: () -> Unit
 ) {
     val scrollState = rememberLazyListState()
@@ -175,6 +176,9 @@ fun TracksList(
             }
         }
         HorizontalDivider(Modifier.fillMaxWidth())
+        Button(onClick = onCleanSelection, modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth()) {
+            Text("Clean selection")
+        }
         Button(onClick = onSynchronize, modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth()) {
             Text("Synchronize")
         }

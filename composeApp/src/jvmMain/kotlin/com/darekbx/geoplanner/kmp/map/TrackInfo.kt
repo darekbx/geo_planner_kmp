@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,6 +29,8 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darekbx.geoplanner.kmp.db.Point
+import com.darekbx.geoplanner.kmp.db.Track
 
 private const val TOP_PADDING = 10
 private const val START_PADDING = 110F
@@ -36,90 +39,99 @@ private const val START_PADDING = 110F
 fun TrackInfo(highlighted: Highlighted) {
     Column(Modifier.fillMaxWidth().height(200.dp).background(Color.White)) {
         val (track, points) = highlighted
-        Row(
-            Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                "From: ",
-                style = MaterialTheme.typography.caption,
-                fontFamily = FontFamily.Monospace,
-                fontSize = 11.sp,
-            )
-            Text(
-                formatTimestampToDateTime(track.start_timestamp),
-                style = MaterialTheme.typography.caption,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace,
-                fontSize = 11.sp,
-            )
-            Text(
-                ", to: ",
-                style = MaterialTheme.typography.caption,
-                fontFamily = FontFamily.Monospace,
-                fontSize = 11.sp,
-            )
-            Text(
-                formatTimestampToDateTime(track.end_timestamp ?: 0),
-                style = MaterialTheme.typography.caption,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace,
-                fontSize = 11.sp,
-            )
-            Text(
-                ", distance: ",
-                style = MaterialTheme.typography.caption,
-                fontFamily = FontFamily.Monospace,
-                fontSize = 11.sp,
-            )
-            Text(
-                text = "${((track.distance ?: 0.0) / 1000.0).toInt()}km",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.caption,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.End,
-                fontSize = 11.sp,
-            )
-            Text(
-                ", ID: ",
-                style = MaterialTheme.typography.caption,
-                fontFamily = FontFamily.Monospace,
-                fontSize = 11.sp,
-            )
-            Text(
-                "${track.local_id}",
-                style = MaterialTheme.typography.caption,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace,
-                fontSize = 11.sp,
-                lineHeight = 6.sp
-            )
-        }
+        InfoText(track)
+        Charts(points)
+    }
+}
 
-        Row(modifier = Modifier.fillMaxWidth().fillMaxHeight().weight(1F)) {
-            ChartView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .weight(0.5F)
-                    .padding(8.dp)
-                    .background(Color(0xFFEEEEEE), RoundedCornerShape(8.dp))
-                    .padding(4.dp),
-                data = points.map { SpeedUtils.msToKm(it.speed) },
-                unit = "km\\h"
-            )
-            Spacer(Modifier.width(8.dp))
-            ChartView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .weight(0.5F)
-                    .padding(8.dp)
-                    .background(Color(0xFFEEEEEE), RoundedCornerShape(8.dp))
-                    .padding(4.dp),
-                data = points.map { it.altitude.toFloat() }, unit = "m"
-            )
-        }
+@Composable
+private fun ColumnScope.Charts(points: List<Point>) {
+    Row(modifier = Modifier.fillMaxWidth().fillMaxHeight().weight(1F)) {
+        ChartView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .weight(0.5F)
+                .padding(8.dp)
+                .background(Color(0xFFEEEEEE), RoundedCornerShape(8.dp))
+                .padding(4.dp),
+            data = points.map { SpeedUtils.msToKm(it.speed) },
+            unit = "km\\h"
+        )
+        Spacer(Modifier.width(8.dp))
+        ChartView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .weight(0.5F)
+                .padding(8.dp)
+                .background(Color(0xFFEEEEEE), RoundedCornerShape(8.dp))
+                .padding(4.dp),
+            data = points.map { it.altitude.toFloat() }, unit = "m"
+        )
+    }
+}
+
+@Composable
+private fun InfoText(track: Track) {
+    Row(
+        Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            "From: ",
+            style = MaterialTheme.typography.caption,
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+        )
+        Text(
+            formatTimestampToDateTime(track.start_timestamp),
+            style = MaterialTheme.typography.caption,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+        )
+        Text(
+            ", to: ",
+            style = MaterialTheme.typography.caption,
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+        )
+        Text(
+            formatTimestampToDateTime(track.end_timestamp ?: 0),
+            style = MaterialTheme.typography.caption,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+        )
+        Text(
+            ", distance: ",
+            style = MaterialTheme.typography.caption,
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+        )
+        Text(
+            text = "${((track.distance ?: 0.0) / 1000.0).toInt()}km",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.caption,
+            fontFamily = FontFamily.Monospace,
+            textAlign = TextAlign.End,
+            fontSize = 11.sp,
+        )
+        Text(
+            ", ID: ",
+            style = MaterialTheme.typography.caption,
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+        )
+        Text(
+            "${track.local_id}",
+            style = MaterialTheme.typography.caption,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+            lineHeight = 6.sp
+        )
     }
 }
 
