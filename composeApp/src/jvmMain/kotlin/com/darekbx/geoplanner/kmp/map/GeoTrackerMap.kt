@@ -48,7 +48,8 @@ object GeoTrackerMapScreen : Screen {
     override fun Content() {
         val tileProvider: BaseTileProvider = koinInject()
         val appDatabaseQueries: AppDatabaseQueries = koinInject()
-        val screenModel = rememberScreenModel { MapViewModel(tileProvider, appDatabaseQueries) }
+        val gpxCreator: GPXCreator = koinInject()
+        val screenModel = rememberScreenModel { MapViewModel(tileProvider, appDatabaseQueries, gpxCreator) }
         val scope = rememberCoroutineScope()
 
         val highlight by screenModel.highlighedTrack
@@ -96,7 +97,7 @@ object GeoTrackerMapScreen : Screen {
                                     Button(onClick = { screenModel.undoPoint() }) { Text("Undo") }
                                 }
                                 Button(
-                                    onClick = { /* TODO */ },
+                                    onClick = { screenModel.createGPX() },
                                     modifier = Modifier.fillMaxWidth()
                                 ) { Text("Export to GPX") }
                             }

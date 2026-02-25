@@ -4,6 +4,7 @@ import com.darekbx.geoplanner.kmp.cloud.FirebaseClient
 import com.darekbx.geoplanner.kmp.cloud.FirebaseSession
 import com.darekbx.geoplanner.kmp.cloud.FirebaseSync
 import com.darekbx.geoplanner.kmp.db.AppDatabaseQueries
+import com.darekbx.geoplanner.kmp.map.GPXCreator
 import com.darekbx.geoplanner.kmp.map.providers.BaseTileProvider
 import com.darekbx.geoplanner.kmp.map.providers.OsmTileProvider
 import com.darekbx.geoplanner.kmp.storage.AppDatabaseProvider
@@ -26,6 +27,7 @@ val appModule = module {
     factory { FirebaseClient(get(), get()) }
 
     single { FirebaseSession() }
+    single { GPXCreator() }
 }
 
 val httpModule = module {

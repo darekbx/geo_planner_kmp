@@ -33,6 +33,11 @@ import ovh.plrapps.mapcompose.ui.paths.model.Cap
 import ovh.plrapps.mapcompose.ui.state.MapState
 import kotlin.math.pow
 
+import java.io.File
+import javax.swing.JFileChooser
+import javax.swing.filechooser.FileNameExtensionFilter
+
+
 data class Highlighted(val track: Track, val points: List<Point>)
 data class RoutePoint(val pointId: String, val point: Pair<Double, Double>)
 data class RoutePath(val pathId: String)
@@ -40,7 +45,8 @@ data class RouteInfo(val points: Int, val distance: Double)
 
 class MapViewModel(
     private val tileProvider: BaseTileProvider,
-    private val appDatabaseQueries: AppDatabaseQueries
+    private val appDatabaseQueries: AppDatabaseQueries,
+    private val gpxCreator: GPXCreator
 ) : ScreenModel {
 
     private var highlightId: String? = null
@@ -73,22 +79,22 @@ class MapViewModel(
             onTap { x, y -> createRoute(x, y)  }
         }
 
-    private fun MapState.createRoute(x: Double, y: Double) {
-        isRoutePlanning.value = true
+    fun createGPX() {
+        val gpxXml = gpxCreator.createXml(routePoints
+            .map { pointToLatLng(it.point.first, it.point.second) })
 
-        routePoints.add(RoutePoint("path-${routePoints.size + 1}", x to y))
-        addMarker("path-${routePoints.size}", x, y) { PlaceDot() }
-
-        if (routePoints.size > 1) {
-            addPath("line-${routePoints.size}", color = Color.Black, width = 2.dp, cap = Cap.Round) {
-                val p0 = routePoints[routePoints.size - 2]
-                addPoint(p0.point.first, p0.point.second)
-                addPoint(x, y)
-            }
-            routePaths.add(RoutePath("line-${routePoints.size}"))
+        val fileChooser = JFileChooser().apply {
+            dialogTitle = "Save file"
+            selectedFile = File("route.gpx")
+            fileFilter = FileNameExtensionFilter("GPX file", "gpx")
         }
 
-        updateRouteInfo()
+        val result = fileChooser.showSaveDialog(null)
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            val file = fileChooser.selectedFile
+            file.writeText(gpxXml)
+        }
     }
 
     fun undoPoint() {
@@ -190,6 +196,24 @@ class MapViewModel(
             state.centroidY,
             destScale = scale
         )
+    }
+
+    private fun MapState.createRoute(x: Double, y: Double) {
+        isRoutePlanning.value = true
+
+        routePoints.add(RoutePoint("path-${routePoints.size + 1}", x to y))
+        addMarker("path-${routePoints.size}", x, y) { PlaceDot() }
+
+        if (routePoints.size > 1) {
+            addPath("line-${routePoints.size}", color = Color.Black, width = 2.dp, cap = Cap.Round) {
+                val p0 = routePoints[routePoints.size - 2]
+                addPoint(p0.point.first, p0.point.second)
+                addPoint(x, y)
+            }
+            routePaths.add(RoutePath("line-${routePoints.size}"))
+        }
+
+        updateRouteInfo()
     }
 
     private fun updateRouteInfo() {
