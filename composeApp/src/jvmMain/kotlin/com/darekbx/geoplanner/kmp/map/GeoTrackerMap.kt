@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.WindPower
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Button
@@ -37,19 +38,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.darekbx.geoplanner.kmp.db.AppDatabaseQueries
+import com.darekbx.geoplanner.kmp.windturbines.WindTurbinesProvider
 import kotlinx.coroutines.launch
 import ovh.plrapps.mapcompose.ui.MapUI
 
 object GeoTrackerMapScreen : Screen {
 
-    private fun readResolve(): Any = GeoTrackerMapScreen
-
     @Composable
     override fun Content() {
         val tileProvider: BaseTileProvider = koinInject()
         val appDatabaseQueries: AppDatabaseQueries = koinInject()
+        val windTurbinesProvider: WindTurbinesProvider = koinInject()
         val gpxCreator: GPXCreator = koinInject()
-        val screenModel = rememberScreenModel { MapViewModel(tileProvider, appDatabaseQueries, gpxCreator) }
+        val screenModel =
+            rememberScreenModel { MapViewModel(tileProvider, appDatabaseQueries, gpxCreator, windTurbinesProvider) }
         val scope = rememberCoroutineScope()
 
         val highlight by screenModel.highlighedTrack
@@ -73,7 +75,8 @@ object GeoTrackerMapScreen : Screen {
                         onLock = { locked ->
                             if (locked) screenModel.disableTrackClick()
                             else screenModel.enableTrackClick()
-                        }
+                        },
+                        onLoadWindTurbines = { scope.launch { screenModel.fetchWindTurbines() } }
                     )
 
                     if (isRoutePlanning) {
@@ -122,7 +125,12 @@ object GeoTrackerMapScreen : Screen {
 }
 
 @Composable
-fun BoxScope.MapZoomButtons(zoomIn: () -> Unit = { }, zoomOut: () -> Unit = { }, onLock: (Boolean) -> Unit = { }) {
+fun BoxScope.MapZoomButtons(
+    zoomIn: () -> Unit = { },
+    zoomOut: () -> Unit = { },
+    onLock: (Boolean) -> Unit = { },
+    onLoadWindTurbines: () -> Unit = { }
+) {
     var lock by remember { mutableStateOf(false) }
     Column(
         Modifier.padding(end = 32.dp, bottom = 32.dp).align(Alignment.BottomEnd),
@@ -154,6 +162,15 @@ fun BoxScope.MapZoomButtons(zoomIn: () -> Unit = { }, zoomOut: () -> Unit = { },
             }
         ) {
             val icon = if (lock) Icons.Default.Lock else Icons.Default.LockOpen
+            Icon(icon, modifier = Modifier.size(28.dp), contentDescription = null)
+        }
+        Button(
+            modifier = Modifier.size(56.dp),
+            contentPadding = PaddingValues(0.dp),
+            shape = RoundedCornerShape(8.dp),
+            onClick = onLoadWindTurbines
+        ) {
+            val icon = Icons.Default.WindPower
             Icon(icon, modifier = Modifier.size(28.dp), contentDescription = null)
         }
     }

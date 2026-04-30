@@ -1,6 +1,11 @@
 package com.darekbx.geoplanner.kmp.map
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.WindPower
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.cash.sqldelight.db.QueryResult
@@ -11,6 +16,8 @@ import com.darekbx.geoplanner.kmp.db.Place
 import com.darekbx.geoplanner.kmp.db.Point
 import com.darekbx.geoplanner.kmp.db.Track
 import com.darekbx.geoplanner.kmp.map.providers.BaseTileProvider
+import com.darekbx.geoplanner.kmp.windturbines.WindTurbine
+import com.darekbx.geoplanner.kmp.windturbines.WindTurbinesProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,12 +53,14 @@ data class RouteInfo(val points: Int, val distance: Double)
 class MapViewModel(
     private val tileProvider: BaseTileProvider,
     private val appDatabaseQueries: AppDatabaseQueries,
-    private val gpxCreator: GPXCreator
+    private val gpxCreator: GPXCreator,
+    private val windTurbinesProvider: WindTurbinesProvider
 ) : ScreenModel {
 
     private var highlightId: String? = null
     private var routePoints = mutableListOf<RoutePoint>()
     private var routePaths = mutableListOf<RoutePath>()
+    private var windTurbines = mutableListOf<WindTurbine>()
     private var trackPathIds = mutableListOf<String>()
     private var isLocked = false
 
@@ -76,12 +85,13 @@ class MapViewModel(
             }
 
             // Add route point on tap
-            onTap { x, y -> createRoute(x, y)  }
+            onTap { x, y -> createRoute(x, y) }
         }
 
     fun createGPX() {
-        val gpxXml = gpxCreator.createXml(routePoints
-            .map { pointToLatLng(it.point.first, it.point.second) })
+        val gpxXml = gpxCreator.createXml(
+            routePoints
+                .map { pointToLatLng(it.point.first, it.point.second) })
 
         val fileChooser = JFileChooser().apply {
             dialogTitle = "Save file"
@@ -196,6 +206,22 @@ class MapViewModel(
             state.centroidY,
             destScale = scale
         )
+    }
+
+    suspend fun fetchWindTurbines() {
+        withContext(Dispatchers.IO) {
+            val data = windTurbinesProvider.fetch()
+            withContext(Dispatchers.Main) {
+                data
+                    .filter { it.hasLocation() }
+                    .forEach { item ->
+                        val position = latLngToPoint(item.lat!!, item.lon!!)
+                        state.addMarker(id = "turbine:${item.hashCode()}", x = position.first, y = position.second) {
+                            Icon(Icons.Default.WindPower, modifier = Modifier.size(14.dp), contentDescription = null)
+                        }
+                    }
+            }
+        }
     }
 
     private fun MapState.createRoute(x: Double, y: Double) {

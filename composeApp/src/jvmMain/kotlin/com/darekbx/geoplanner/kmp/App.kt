@@ -24,7 +24,6 @@ fun App() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             GeoTrackerMapScreen.Content()
-
         }
     }
 }

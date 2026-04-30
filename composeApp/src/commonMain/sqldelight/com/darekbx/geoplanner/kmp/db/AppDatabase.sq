@@ -40,6 +40,9 @@ insertTrack:
 INSERT INTO track(local_id, label, start_timestamp, end_timestamp, distance)
 VALUES (?, ?, ?, ?, ?);
 
+deleteAllTracks:
+DELETE FROM track;
+
 -- =========================
 -- POINT
 -- =========================
@@ -60,6 +63,9 @@ VALUES (?, ?, ?, ?, ?, ?);
 
 selectPoints:
 SELECT * FROM point WHERE track_id = ?;
+
+deleteAllPoints:
+DELETE FROM point;
 
 -- =========================
 -- PLACE

@@ -8,6 +8,7 @@ import com.darekbx.geoplanner.kmp.map.GPXCreator
 import com.darekbx.geoplanner.kmp.map.providers.BaseTileProvider
 import com.darekbx.geoplanner.kmp.map.providers.OsmTileProvider
 import com.darekbx.geoplanner.kmp.storage.AppDatabaseProvider
+import com.darekbx.geoplanner.kmp.windturbines.WindTurbinesProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -25,6 +26,7 @@ val appModule = module {
     single<AppDatabaseQueries> { AppDatabaseProvider().createDatabase().appDatabaseQueries }
     factory { FirebaseSync(get(), get()) }
     factory { FirebaseClient(get(), get()) }
+    factory { WindTurbinesProvider(get()) }
 
     single { FirebaseSession() }
     single { GPXCreator() }

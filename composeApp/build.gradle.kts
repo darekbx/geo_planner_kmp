@@ -80,7 +80,11 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.darekbx.geo_planner_kmp"
-            packageVersion = "1.0.0"
+            packageVersion = "1.0.1"
+
+            macOS {
+                iconFile.set(project.file("src/jvmMain/resources/bike_565350.icns"))
+            }
         }
     }
 }
