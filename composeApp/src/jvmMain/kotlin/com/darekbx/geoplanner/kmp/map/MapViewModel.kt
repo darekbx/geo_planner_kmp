@@ -60,7 +60,6 @@ class MapViewModel(
     private var highlightId: String? = null
     private var routePoints = mutableListOf<RoutePoint>()
     private var routePaths = mutableListOf<RoutePath>()
-    private var windTurbines = mutableListOf<WindTurbine>()
     private var trackPathIds = mutableListOf<String>()
     private var isLocked = false
 
@@ -105,6 +104,30 @@ class MapViewModel(
             val file = fileChooser.selectedFile
             file.writeText(gpxXml)
         }
+    }
+
+    fun loadGpx() {
+
+        val fileChooser = JFileChooser().apply {
+            dialogTitle = "Load file"
+            fileFilter = FileNameExtensionFilter("GPX file", "gpx")
+        }
+
+        val result = fileChooser.showOpenDialog(null)
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            val file = fileChooser.selectedFile
+
+            val points = gpxCreator.readXml(file.readText())
+
+            state.removePath("gpx_loaded")
+            state.addPath("gpx_loaded", color = Color.Blue, width = 2.dp, clickable = false) {
+                val pointsTransformed = points
+                    .map { point -> latLngToPoint(point.first, point.second) }
+                addPoints(pointsTransformed)
+            }
+        }
+
     }
 
     fun undoPoint() {

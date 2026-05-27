@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.WindPower
@@ -69,14 +70,15 @@ object GeoTrackerMapScreen : Screen {
 
                     MapUI(Modifier.fillMaxSize(), state = screenModel.state)
 
-                    MapZoomButtons(
+                    MapButtons(
                         zoomIn = { scope.launch { screenModel.zoomIn() } },
                         zoomOut = { scope.launch { screenModel.zoomOut() } },
                         onLock = { locked ->
                             if (locked) screenModel.disableTrackClick()
                             else screenModel.enableTrackClick()
                         },
-                        onLoadWindTurbines = { scope.launch { screenModel.fetchWindTurbines() } }
+                        onLoadWindTurbines = { scope.launch { screenModel.fetchWindTurbines() } },
+                        onLoadGPX = { scope.launch { screenModel.loadGpx() } }
                     )
 
                     if (isRoutePlanning) {
@@ -125,11 +127,12 @@ object GeoTrackerMapScreen : Screen {
 }
 
 @Composable
-fun BoxScope.MapZoomButtons(
+fun BoxScope.MapButtons(
     zoomIn: () -> Unit = { },
     zoomOut: () -> Unit = { },
     onLock: (Boolean) -> Unit = { },
-    onLoadWindTurbines: () -> Unit = { }
+    onLoadWindTurbines: () -> Unit = { },
+    onLoadGPX: () -> Unit = { }
 ) {
     var lock by remember { mutableStateOf(false) }
     Column(
@@ -173,6 +176,15 @@ fun BoxScope.MapZoomButtons(
             val icon = Icons.Default.WindPower
             Icon(icon, modifier = Modifier.size(28.dp), contentDescription = null)
         }
+        Button(
+            modifier = Modifier.size(56.dp),
+            contentPadding = PaddingValues(0.dp),
+            shape = RoundedCornerShape(8.dp),
+            onClick = onLoadGPX
+        ) {
+            val icon = Icons.Default.FileOpen
+            Icon(icon, modifier = Modifier.size(28.dp), contentDescription = null)
+        }
     }
 }
 
@@ -184,5 +196,5 @@ fun PlaceDot() {
 @Preview
 @Composable
 fun MapZoomButtonsPreview() {
-    Box { MapZoomButtons() }
+    Box { MapButtons() }
 }
